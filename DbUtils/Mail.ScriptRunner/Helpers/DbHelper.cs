@@ -10,28 +10,30 @@ namespace Mail.ScriptRunner.Helpers
 	public class DbHelper : IDbHelper
 	{
 		private readonly string _databaseName;
-		private readonly SqlConnection _connection;
+		private readonly string _connectionString;
+		private readonly string _masterConnectionString;
 
 		private const string MasterDatabaseName = "master";
 
 		public DbHelper(string databaseName)
 		{
 			_databaseName = databaseName;
-			_connection = new SqlConnection(string.Format(
-				ConfigurationManager.ConnectionStrings["Default"].ConnectionString, databaseName));
+
+			_connectionString = string.Format(
+				ConfigurationManager.ConnectionStrings["Default"].ConnectionString, databaseName);
+
+			_masterConnectionString = string.Format(
+				ConfigurationManager.ConnectionStrings["Default"].ConnectionString, MasterDatabaseName);
 		}
 
 		public bool CkeckIfDatabaseExists()
 		{
-			var masterConnection = new SqlConnection(string.Format(
-				ConfigurationManager.ConnectionStrings["Default"].ConnectionString, MasterDatabaseName));
-
-			using (masterConnection)
+			using (var masterConnection = new SqlConnection(_masterConnectionString))
 			{
 				masterConnection.Open();
 
 				var sqlQueryStr = string.Format(@"
-					SELECT COUNT(*) FROM [{0}].[sys].[databases] WHERE name='{1}'", 
+					SELECT COUNT(*) FROM [{0}].[sys].[databases] WHERE name='{1}'",
 					MasterDatabaseName, _databaseName);
 
 				var cmd = new SqlCommand(sqlQueryStr, masterConnection);
@@ -42,10 +44,7 @@ namespace Mail.ScriptRunner.Helpers
 
 		public void CreateDatabase()
 		{
-			var masterConnection = new SqlConnection(string.Format(
-				ConfigurationManager.ConnectionStrings["Default"].ConnectionString, MasterDatabaseName));
-
-			using (masterConnection)
+			using (var masterConnection = new SqlConnection(_masterConnectionString))
 			{
 				masterConnection.Open();
 
@@ -69,29 +68,26 @@ namespace Mail.ScriptRunner.Helpers
 		public IEnumerable<string> GetScriptHistory()
 		{
 			var scriptHistory = new List<string>();
-			
-			using (_connection)
+
+			using (var connection = new SqlConnection(_connectionString))
 			{
-				_connection.Open();
+				connection.Open();
 
 				var sqlQueryStr = @"
 					SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES  
 					WHERE TABLE_NAME = N'ScriptHistory'";
 
-				var cmd = new SqlCommand(sqlQueryStr, _connection);
+				var cmd = new SqlCommand(sqlQueryStr, connection);
 
-				if ((int)cmd.ExecuteScalar() > 0)
+				sqlQueryStr = "SELECT ScriptId FROM ScriptHistory";
+
+				cmd = new SqlCommand(sqlQueryStr, connection);
+
+				var reader = cmd.ExecuteReader();
+
+				while (reader.Read())
 				{
-					sqlQueryStr = "SELECT ScriptId FROM ScriptHistory";
-
-					cmd = new SqlCommand(sqlQueryStr, _connection);
-
-					var reader = cmd.ExecuteReader();
-
-					while (reader.Read())
-					{
-						scriptHistory.Add(reader["ScriptId"].ToString());
-					}
+					scriptHistory.Add(reader["ScriptId"].ToString());
 				}
 			}
 
@@ -101,10 +97,10 @@ namespace Mail.ScriptRunner.Helpers
 		public void ExecutSqlQuery(FileInfo[] files, Action<string> logger)
 		{
 			var scriptHistory = GetScriptHistory();
-			
-			using (_connection)
+
+			using (var connection = new SqlConnection(_connectionString))
 			{
-				_connection.Open();
+				connection.Open();
 
 				foreach (var file in files)
 				{
@@ -112,7 +108,7 @@ namespace Mail.ScriptRunner.Helpers
 					{
 						var sqlQueryStr = File.ReadAllText(file.FullName);
 
-						var cmd = new SqlCommand(sqlQueryStr, _connection);
+						var cmd = new SqlCommand(sqlQueryStr, connection);
 
 						cmd.ExecuteNonQuery();
 
@@ -137,9 +133,9 @@ namespace Mail.ScriptRunner.Helpers
 
 		private void CreateSriptHistoryTable()
 		{
-			using (_connection)
+			using (var connection = new SqlConnection(_connectionString))
 			{
-				_connection.Open();
+				connection.Open();
 
 				var sqlQueryStr = string.Format(@"
 					CREATE TABLE [dbo].[ScriptHistory] (
@@ -149,7 +145,7 @@ namespace Mail.ScriptRunner.Helpers
 					);"
 				);
 
-				var cmd = new SqlCommand(sqlQueryStr);
+				var cmd = new SqlCommand(sqlQueryStr, connection);
 
 				cmd.ExecuteNonQuery();
 			}

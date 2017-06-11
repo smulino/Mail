@@ -14,7 +14,7 @@ namespace Mail.ScriptRunner
 
 			while (true)
 			{
-				 Console.Write(">");
+				Console.Write(">");
 
 				var scriptsDirectory = GetSolutionDirectory("Scripts");
 				var scripts = scriptsDirectory.GetFiles();
