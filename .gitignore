@@ -47,3 +47,6 @@ Temporary Items
 .apdisk
 /DbUtils/Mail.ScriptRunner/bin
 /DbUtils/Mail.ScriptRunner/obj
+/Mail.Data/obj/Debug
+/Mail.Services/obj/Debug
+/Mail.Web/obj/Debug
