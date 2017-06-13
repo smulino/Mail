@@ -8,10 +8,14 @@ namespace Mail.Data.Entities
 
 		public string Text { get; set; }
 
-		public int FromUserId { get; set; }
+		public int SenderUserId { get; set; }
 
-		public int ToUserId { get; set; }
+		public int ReceiverUserId { get; set; }
 
 		public DateTime CreationTimeUTC { get; set; }
+
+		public virtual User SenderUser { get; set; }
+
+		public virtual User ReceiverUser { get; set; }
 	}
 }
