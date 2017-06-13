@@ -52,3 +52,6 @@ Temporary Items
 /Mail.Web/obj/Debug
 /Tools/Mail.ScriptRunner/obj/Debug
 /Mail.Web/bin
+/Mail.Data/bin/Debug
+/Tools/Mail.ScriptRunner/bin/Debug
+/Mail.Services/bin/Debug
