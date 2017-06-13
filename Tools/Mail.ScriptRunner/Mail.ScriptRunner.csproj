@@ -47,6 +47,9 @@
     <Compile Include="Helpers\IDbHelper.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Content Include="Scripts\4_Create_Messages_Table.sql" />
+    <Content Include="Scripts\3_Create_UserRoles_Table.sql" />
+    <Content Include="Scripts\2_Create_Roles_Table.sql" />
     <Content Include="Scripts\1_Create_Users_Table.sql" />
   </ItemGroup>
   <ItemGroup>
