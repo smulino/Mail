@@ -46,5 +46,11 @@
     <Compile Include="Users\IUserService.cs" />
     <Compile Include="Users\UserService.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Mail.Data\Mail.Data.csproj">
+      <Project>{c03548ed-7d4a-4f77-8b18-087d71450cf8}</Project>
+      <Name>Mail.Data</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

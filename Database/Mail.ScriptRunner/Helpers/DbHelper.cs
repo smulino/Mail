@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.SqlServer.Management.Common;
+using Microsoft.SqlServer.Management.Smo;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data.SqlClient;
@@ -108,9 +110,12 @@ namespace Mail.ScriptRunner.Helpers
 					{
 						var sqlQueryStr = File.ReadAllText(file.FullName);
 
-						var cmd = new SqlCommand(sqlQueryStr, connection);
+						//Doesn't execute sql script with GO commands
+						//var cmd = new SqlCommand(sqlQueryStr, connection);
+						//cmd.ExecuteNonQuery();
 
-						cmd.ExecuteNonQuery();
+						Server server = new Server(new ServerConnection(connection));
+						server.ConnectionContext.ExecuteNonQuery(sqlQueryStr);
 
 						logger(file.Name);
 					}

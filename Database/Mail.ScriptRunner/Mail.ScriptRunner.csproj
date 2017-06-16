@@ -32,6 +32,11 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.SqlServer.ConnectionInfo, Version=10.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91" />
+    <Reference Include="Microsoft.SqlServer.Smo, Version=10.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Microsoft.SqlServer.Smo.dll.1.0.1\lib\Microsoft.SqlServer.Smo.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
@@ -48,13 +53,15 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Content Include="Scripts\4_Create_Messages_Table.sql" />
-    <Content Include="Scripts\5_FillOut_Roles_Table.sql" />
+    <Content Include="Scripts\6_Create_GetUserById_Procedure.sql" />
+    <Content Include="Scripts\5_Insert_Role_Records.sql" />
     <Content Include="Scripts\3_Create_UserRoles_Table.sql" />
     <Content Include="Scripts\2_Create_Roles_Table.sql" />
     <Content Include="Scripts\1_Create_Users_Table.sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
