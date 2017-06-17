@@ -16,9 +16,8 @@ namespace Mail.ScriptRunner
 			{
 				Console.Write(">");
 
-				var scriptsDirectory = GetSolutionDirectory("Scripts");
-				var scripts = scriptsDirectory.GetFiles();
-
+				var scripts = GetSolutionFiles("Scripts");
+				
 				string command = Console.ReadLine();
 
 				switch (command.ToLower())
@@ -50,11 +49,12 @@ namespace Mail.ScriptRunner
 			}
 		}
 
-		static DirectoryInfo GetSolutionDirectory(string directoryName)
+		static FileInfo[] GetSolutionFiles(string directoryName)
 		{
 			var rootDirectory = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent;
+			var solutionDirectory = new DirectoryInfo(Path.Combine(rootDirectory.FullName, directoryName));
 
-			return new DirectoryInfo(Path.Combine(rootDirectory.FullName, directoryName));
+			return solutionDirectory.GetFiles();
 		}
 	}
 }

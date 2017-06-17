@@ -11,32 +11,37 @@ namespace Mail.ScriptRunner.Helpers
 {
 	public class DbHelper : IDbHelper
 	{
-		private readonly string _databaseName;
-		private readonly string _connectionString;
-		private readonly string _masterConnectionString;
+		private readonly string databaseName;
+
+		private readonly string connectionString;
+
+		private readonly static string MasterConnectionString;
 
 		private const string MasterDatabaseName = "master";
 
+		static DbHelper()
+		{
+			MasterConnectionString = string.Format(
+				ConfigurationManager.ConnectionStrings["Default"].ConnectionString, MasterDatabaseName);
+		}
+
 		public DbHelper(string databaseName)
 		{
-			_databaseName = databaseName;
+			this.databaseName = databaseName;
 
-			_connectionString = string.Format(
+			connectionString = string.Format(
 				ConfigurationManager.ConnectionStrings["Default"].ConnectionString, databaseName);
-
-			_masterConnectionString = string.Format(
-				ConfigurationManager.ConnectionStrings["Default"].ConnectionString, MasterDatabaseName);
 		}
 
 		public bool CkeckIfDatabaseExists()
 		{
-			using (var masterConnection = new SqlConnection(_masterConnectionString))
+			using (var masterConnection = new SqlConnection(MasterConnectionString))
 			{
 				masterConnection.Open();
 
 				var sqlQueryStr = string.Format(@"
 					SELECT COUNT(*) FROM [{0}].[sys].[databases] WHERE name='{1}'",
-					MasterDatabaseName, _databaseName);
+					MasterDatabaseName, databaseName);
 
 				var cmd = new SqlCommand(sqlQueryStr, masterConnection);
 
@@ -46,11 +51,11 @@ namespace Mail.ScriptRunner.Helpers
 
 		public void CreateDatabase()
 		{
-			using (var masterConnection = new SqlConnection(_masterConnectionString))
+			using (var masterConnection = new SqlConnection(MasterConnectionString))
 			{
 				masterConnection.Open();
 
-				var sqlQueryStr = string.Format(@"CREATE DATABASE {0}", _databaseName);
+				var sqlQueryStr = string.Format(@"CREATE DATABASE {0}", databaseName);
 				var cmd = new SqlCommand(sqlQueryStr, masterConnection);
 				
 				cmd.ExecuteNonQuery();
@@ -71,7 +76,7 @@ namespace Mail.ScriptRunner.Helpers
 		{
 			var scriptHistory = new List<string>();
 
-			using (var connection = new SqlConnection(_connectionString))
+			using (var connection = new SqlConnection(connectionString))
 			{
 				connection.Open();
 
@@ -100,7 +105,7 @@ namespace Mail.ScriptRunner.Helpers
 		{
 			var scriptHistory = GetScriptHistory();
 
-			using (var connection = new SqlConnection(_connectionString))
+			using (var connection = new SqlConnection(connectionString))
 			{
 				connection.Open();
 
@@ -109,11 +114,7 @@ namespace Mail.ScriptRunner.Helpers
 					if (file.Extension == ".sql" && !scriptHistory.Contains(file.Name))
 					{
 						var sqlQueryStr = File.ReadAllText(file.FullName);
-
-						//Doesn't execute sql script with GO commands
-						//var cmd = new SqlCommand(sqlQueryStr, connection);
-						//cmd.ExecuteNonQuery();
-
+						
 						Server server = new Server(new ServerConnection(connection));
 						server.ConnectionContext.ExecuteNonQuery(sqlQueryStr);
 
@@ -138,7 +139,7 @@ namespace Mail.ScriptRunner.Helpers
 
 		private void CreateSriptHistoryTable()
 		{
-			using (var connection = new SqlConnection(_connectionString))
+			using (var connection = new SqlConnection(connectionString))
 			{
 				connection.Open();
 
