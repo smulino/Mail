@@ -47,9 +47,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Entities\Message.cs" />
-    <Compile Include="Entities\Role.cs" />
-    <Compile Include="Entities\User.cs" />
+    <Compile Include="Domain\Message.cs" />
+    <Compile Include="Domain\Role.cs" />
+    <Compile Include="Domain\User.cs" />
     <Compile Include="IDbContext.cs" />
     <Compile Include="MailDbContext.cs" />
     <Compile Include="Mapping\MessageMap.cs" />

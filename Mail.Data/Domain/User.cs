@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Mail.Data.Entities
+namespace Mail.Data.Domain
 {
 	public class User
 	{

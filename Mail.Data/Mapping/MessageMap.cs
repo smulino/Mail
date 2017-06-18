@@ -1,4 +1,4 @@
-﻿using Mail.Data.Entities;
+﻿using Mail.Data.Domain;
 using System.Data.Entity.ModelConfiguration;
 
 namespace Mail.Data.Mapping

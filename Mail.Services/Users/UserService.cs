@@ -1,5 +1,5 @@
 ﻿using System;
-using Mail.Data.Entities;
+using Mail.Data.Domain;
 
 namespace Mail.Services.Users
 {

@@ -1,5 +1,6 @@
-﻿using Mail.Data.Entities;
+﻿using Mail.Data.Domain;
 using Mail.Data.Mapping;
+using System.Collections.Generic;
 using System.Data.Entity;
 using System.Data.SqlClient;
 using System.Linq;
@@ -17,7 +18,33 @@ namespace Mail.Data
 		{
 			return base.Set<TEntity>();
 		}
+		
+		public IList<TResult> ExecuteStoredProcedure<TResult>(string procedureName, Dictionary<string, object> parameters)
+		{
+			var sqlParameters = new List<SqlParameter>();
 
+			string commandText = procedureName; 
+
+			if (parameters.Any())
+			{
+				commandText += " " + string.Join(",", parameters.Keys.AsEnumerable());
+
+				foreach (var parameter in parameters)
+				{
+					sqlParameters.Add(new SqlParameter(parameter.Key, (int)parameter.Value));
+				}
+			}
+
+			var result = this.Database.SqlQuery<TResult>(commandText, sqlParameters.ToArray()).ToList();
+
+			return result;
+		}
+
+		public TResult ExecuteStoredProcedureScalar<TResult>(string procedureName, Dictionary<string, object> parameters)
+		{
+			return ExecuteStoredProcedure<TResult>(procedureName, parameters).FirstOrDefault();
+		}
+		
 		public User GetUserById(int Id)
 		{
 			var userId = new SqlParameter("@userId", Id);
