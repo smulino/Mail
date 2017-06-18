@@ -1,6 +1,8 @@
-﻿using Mail.Data.Mapping;
+﻿using Mail.Data.Entities;
+using Mail.Data.Mapping;
 using System.Data.Entity;
-using System.Data.Entity.Infrastructure;
+using System.Data.SqlClient;
+using System.Linq;
 
 namespace Mail.Data
 {
@@ -16,6 +18,15 @@ namespace Mail.Data
 			return base.Set<TEntity>();
 		}
 
+		public User GetUserById(int Id)
+		{
+			var userId = new SqlParameter("@userId", Id);
+
+			var user = this.Database.SqlQuery<User>("GetUserById @userId", userId).ToList().FirstOrDefault();
+
+			return user;
+		}
+		
 		protected override void OnModelCreating(DbModelBuilder modelBuilder)
 		{
 			modelBuilder.Configurations.Add(new UserMap());

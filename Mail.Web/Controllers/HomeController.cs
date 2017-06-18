@@ -16,6 +16,8 @@ namespace Mail.Web.Controllers
 
 			//var users = dbContext.Set<User>().AsQueryable().ToList()[1].Roles;
 
+			var user = dbContext.GetUserById(1); 
+
 			return View();
         }
     }
