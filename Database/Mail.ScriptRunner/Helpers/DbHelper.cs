@@ -15,6 +15,10 @@ namespace Mail.ScriptRunner.Helpers
 
 		private readonly string connectionString;
 
+		private readonly SqlConnection connection;
+
+		private bool disposed = false;
+
 		private readonly static string MasterConnectionString;
 
 		private const string MasterDatabaseName = "master";
@@ -31,6 +35,10 @@ namespace Mail.ScriptRunner.Helpers
 
 			connectionString = string.Format(
 				ConfigurationManager.ConnectionStrings["Default"].ConnectionString, databaseName);
+
+			CreateDatabaseIfNotExists();
+			connection = new SqlConnection(connectionString);
+			connection.Open();
 		}
 
 		public bool CkeckIfDatabaseExists()
@@ -76,22 +84,18 @@ namespace Mail.ScriptRunner.Helpers
 		{
 			var scriptHistory = new List<string>();
 
-			using (var connection = new SqlConnection(connectionString))
-			{
-				connection.Open();
-
-				var sqlQueryStr = @"
+			var sqlQueryStr = @"
 					SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES  
 					WHERE TABLE_NAME = N'ScriptHistory'";
 
-				var cmd = new SqlCommand(sqlQueryStr, connection);
+			var cmd = new SqlCommand(sqlQueryStr, connection);
 
-				sqlQueryStr = "SELECT ScriptId FROM ScriptHistory";
+			sqlQueryStr = "SELECT ScriptId FROM ScriptHistory";
 
-				cmd = new SqlCommand(sqlQueryStr, connection);
-
-				var reader = cmd.ExecuteReader();
-
+			cmd = new SqlCommand(sqlQueryStr, connection);
+			
+			using (var reader = cmd.ExecuteReader())
+			{
 				while (reader.Read())
 				{
 					scriptHistory.Add(reader["ScriptId"].ToString());
@@ -104,22 +108,17 @@ namespace Mail.ScriptRunner.Helpers
 		public void ExecutSqlQuery(FileInfo[] files, Action<string> logger)
 		{
 			var scriptHistory = GetScriptHistory();
-
-			using (var connection = new SqlConnection(connectionString))
+			
+			foreach (var file in files)
 			{
-				connection.Open();
-
-				foreach (var file in files)
+				if (file.Extension == ".sql" && !scriptHistory.Contains(file.Name))
 				{
-					if (file.Extension == ".sql" && !scriptHistory.Contains(file.Name))
-					{
-						var sqlQueryStr = File.ReadAllText(file.FullName);
-						
-						Server server = new Server(new ServerConnection(connection));
-						server.ConnectionContext.ExecuteNonQuery(sqlQueryStr);
+					var sqlQueryStr = File.ReadAllText(file.FullName);
 
-						logger(file.Name);
-					}
+					Server server = new Server(new ServerConnection(connection));
+					server.ConnectionContext.ExecuteNonQuery(sqlQueryStr);
+
+					logger(file.Name);
 				}
 			}
 		}
@@ -155,6 +154,22 @@ namespace Mail.ScriptRunner.Helpers
 
 				cmd.ExecuteNonQuery();
 			}
+		}
+
+		protected virtual void Dispose(bool disposing)
+		{
+			if (disposed)
+				return;
+
+			if (disposing)
+				connection.Close();
+
+			disposed = true;
+		}
+
+		public void Dispose()
+		{
+			Dispose(true);
 		}
 	}
 }

@@ -8,43 +8,31 @@ namespace Mail.ScriptRunner
 	{
 		static void Main(string[] args)
 		{
-			IDbHelper dbHelper = new DbHelper("Mail");
-
-			Console.WriteLine("Commands: run | updates");
-
-			while (true)
+			using (IDbHelper dbHelper = new DbHelper("Mail"))
 			{
-				Console.Write(">");
+				Console.WriteLine("Commands: run | updates");
 
-				var scripts = GetSolutionFiles("Scripts");
-				
-				string command = Console.ReadLine();
-
-				switch (command.ToLower())
+				while (true)
 				{
-					case "run":
-						{
-							dbHelper.CreateDatabaseIfNotExists();
+					Console.Write(">");
+
+					var scripts = GetSolutionFiles("Scripts");
+
+					string command = Console.ReadLine();
+
+					switch (command.ToLower())
+					{
+						case "run":
 							dbHelper.ExecutSqlQuery(scripts, Console.WriteLine);
-						}
-						break;
-					case "updates":
-						{
-							if (!dbHelper.CkeckIfDatabaseExists())
-							{
-								Console.WriteLine("Database doesn't exist. Try 'run' to create database");
-								continue;
-							}
-
+							break;
+						case "updates":
 							dbHelper.CheckUpdates(scripts, Console.WriteLine);
-						}
-						break;
-					default:
-						{
+							break;
+						default:
 							Console.WriteLine("Invalid command");
-						}
-						break;
+							break;
 
+					}
 				}
 			}
 		}

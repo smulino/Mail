@@ -4,7 +4,7 @@ using System.IO;
 
 namespace Mail.ScriptRunner.Helpers
 {
-	public interface IDbHelper
+	public interface IDbHelper : IDisposable
 	{
 		bool CkeckIfDatabaseExists();
 		void CreateDatabase();
